@@ -182,7 +182,7 @@
                 const datos = await response.json();
                 nodos = datos.nodos;
                 grafo = datos.grafo;
-                console.log(`✅ Grafo: ${Object.keys(nodos).length} nodos, ${Object.keys(grafo).length} conexiones`);
+                console.log(`✅ ${Object.keys(nodos).length} nodos, ${Object.keys(grafo).length} conexiones`);
             } catch (error) {
                 alert('Error cargando grafo_web.json');
                 return;
@@ -192,32 +192,30 @@
         }
         
         function poblarSelectores() {
-            const selectOrigen = document.getElementById('origen');
-            const selectDestino = document.getElementById('destino');
+            const sO = document.getElementById('origen');
+            const sD = document.getElementById('destino');
             const pois = Object.keys(nodos).filter(id => nodos[id].tipo === 'poi');
             pois.forEach(id => {
-                [selectOrigen, selectDestino].forEach(select => {
+                [sO, sD].forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = id;
                     opt.textContent = nodos[id].nombre;
-                    select.appendChild(opt);
+                    s.appendChild(opt);
                 });
             });
         }
         
         function inicializarMapa() {
             map = L.map('map').setView([-11.8550, -77.0670], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19}).addTo(map);
             
             map.on('click', e => { if (modoReporte) reportarTrafico(e.latlng); });
             
             // Dibujar calles con geometría
             for (let n1 in grafo) {
                 for (let n2 in grafo[n1]) {
-                    const arista = grafo[n1][n2];
-                    let coords = arista.geometria || [[nodos[n1].lat, nodos[n1].lon], [nodos[n2].lat, nodos[n2].lon]];
+                    const a = grafo[n1][n2];
+                    let coords = a.geometria || [[nodos[n1].lat, nodos[n1].lon], [nodos[n2].lat, nodos[n2].lon]];
                     L.polyline(coords, { color: '#bdc3c7', weight: 2, opacity: 0.4 }).addTo(map);
                 }
             }
@@ -384,9 +382,9 @@
             
             let coords = [];
             for (let i = 0; i < ruta.length - 1; i++) {
-                const arista = grafo[ruta[i]]?.[ruta[i+1]];
-                if (arista?.geometria) {
-                    coords.push(...(i === 0 ? arista.geometria : arista.geometria.slice(1)));
+                const a = grafo[ruta[i]]?.[ruta[i+1]];
+                if (a?.geometria) {
+                    coords.push(...(i === 0 ? a.geometria : a.geometria.slice(1)));
                 } else {
                     coords.push([nodos[ruta[i+1]].lat, nodos[ruta[i+1]].lon]);
                 }
